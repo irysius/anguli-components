@@ -1,0 +1,37 @@
+{
+  "name": "@irysius/anguli-components",
+  "version": "0.1.1",
+  "description": "Web server components for the anguli framework",
+  "main": "build/main.js",
+  "scripts": {
+    "test": "grunt && mocha test/test",
+    "prepublish": "grunt publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/irysius/anguli-components.git"
+  },
+  "keywords": [
+    "framework",
+    "web"
+  ],
+  "author": "Lester Sy (https://lestersy.io)",
+  "license": "MIT",
+  "dependencies": {
+    "@irysius/utils": "0.1.2",
+    "connect-redis": "3.0.2",
+    "express-session": "1.13.0",
+    "lodash": "4.12.0"
+  },
+  "devDependencies": {
+    "babel-polyfill": "^6.6.1",
+    "babel-preset-es2015": "^6.6.0",
+    "chai": "^3.5.0",
+    "grunt": "^0.4.5",
+    "grunt-babel": "^6.0.0",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "mocha": "^2.4.5"
+  }
+}
