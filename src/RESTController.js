@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var h = require('./Helper');
+var errorHandler = require('./ErrorHandler').controller;
 
 function populateModel(promise, fields) {
 	if (_.isString(fields)) {
@@ -24,7 +24,7 @@ class RESTController {
 			delete req.query.populate;
 			populateModel(this.Model.find(req.query), fields).then(items => {
 				res.json(items);
-			}).catch(h.errorHandler(req, res));
+			}).catch(errorHandler(req, res));
 		};
 		this['get /:id(\\d+)'] = (req, res) => {
 			delete req.query.id;
@@ -34,13 +34,13 @@ class RESTController {
 			populateModel(this.Model.findOne(criteria), fields).then(item => {
 				if (!item) { res.status(404).json({ error: 'Not found.' }); }
 				else { res.json(item); }
-			}).catch(h.errorHandler(req, res));
+			}).catch(errorHandler(req, res));
 		};
 		this.post = (req, res) => {
 			delete req.body.id;
 			this.Model.create(req.body).then(item => {
 				res.json(item);
-			}).catch(h.errorHandler(req, res));
+			}).catch(errorHandler(req, res));
 		};
 		this['put /:id(\\d+)'] = (req, res) => {
 			delete req.body.id;
@@ -52,7 +52,7 @@ class RESTController {
 				} else {
 					res.json(items[0]);
 				}
-			}).catch(h.errorHandler(req, res));
+			}).catch(errorHandler(req, res));
 		};
 		this['delete /:id(\\d+)'] = (req, res) => {
 			if (this.options.softDeleteField) {
@@ -60,11 +60,11 @@ class RESTController {
 				update[this.options.softDeleteField] = true;
 				this.Model.update(req.params.id, update).then(items => {
 					res.json({ message: 'OK' });
-				}).catch(h.errorHandler(req, res));	
+				}).catch(errorHandler(req, res));	
 			} else {
 				this.Model.destroy(req.params.id).then(() => {
 					res.json({ message: 'OK' });
-				}).catch(h.errorHandler(req, res));	
+				}).catch(errorHandler(req, res));	
 			}
 		};
 	}

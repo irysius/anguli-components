@@ -12,9 +12,14 @@ function HubRouter({ io, logger = null }) {
 	function setupHubs(rootFolder) {
 		logger.info('HubRouter initializing.');
 		var path = PATH.resolve(rootFolder, '/hubs');
-		var hubs = fs.readdirSync(path)
-			.filter(x => x.endsWith('Hub.js'))
-			.map(x => x.replace(/\.js$/, ''));
+
+		// Walk through hubs
+		var hubs = [];
+		try {
+			hubs = fs.readdirSync(path)
+				.filter(x => x.endsWith('Hub.js'))
+				.map(x => x.replace(/\.js$/, ''));
+		} catch (e) { /* Empty Catch */ }
 
 		hubs.forEach(name => {
 			var hub;

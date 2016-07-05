@@ -1,14 +1,12 @@
 var _ = require('lodash');
+var { IgnoreError, HttpError } = require('@irysius/utils');
+
 function errorHandler(req, res) {
 	return function handleError(error) {
-		if (_.isArray(error) && error.length === 2) {
-			if (_.isString(error[1])) {
-				res.status(error[0]).json({ error: error[1] });	
-			} else {
-				res.status(error[0]).json(error[1]);
-			}		
-		} else if (error.ValidationError) {
-			res.status(400).json(error.ValidationError);
+		if (error instanceof HttpError) {
+			res.status(error.statusCode).json({ error: error.message });
+		} else if (error instanceof IgnoreError) {
+			res.status(200).json({ message: 'OK' });
 		} else {
 			res.status(500).json({ error: error.message });
 		}
@@ -17,15 +15,11 @@ function errorHandler(req, res) {
 
 function socketErrorHandler(done) {
 	return function handleError(error) {
-		var message;
-		if (_.isArray(error) && error.length === 2) {
-			message = error[1];
-		} else if (error.ValidationError) {
-			message = error.ValidationError;
+		if (error instanceof IgnoreError) {
+			done && done();
 		} else {
-			message = error.message;
+			done && done({ error: error.message });
 		}
-		done && done({ error: message });
 	};
 }
 

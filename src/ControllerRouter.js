@@ -41,9 +41,14 @@ function ControllerRouter({ express, logger = null }) {
 	function setupControllers(app, rootFolder) {
 		logger.info('ControllerRouter initializing.');
 		var path = PATH.resolve(rootFolder, 'controllers');
-		var controllers = fs.readdirSync(path)
-			.filter(x => x.endsWith('Controller.js'))
-			.map(x => x.replace(/\.js$/, ''));
+
+		// Walk through controllers
+		var controllers = [];
+		try {
+			controllers = fs.readdirSync(path)
+				.filter(x => x.endsWith('Controller.js'))
+				.map(x => x.replace(/\.js$/, ''))
+		} catch (e) { /* Empty Catch */ }
 
 		controllers.forEach(name => {
 			var controller;

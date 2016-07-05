@@ -1,6 +1,6 @@
 {
   "name": "@irysius/anguli-components",
-  "version": "0.1.1",
+  "version": "0.1.4",
   "description": "Web server components for the anguli framework",
   "main": "build/main.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "author": "Lester Sy (https://lestersy.io)",
   "license": "MIT",
   "dependencies": {
-    "@irysius/utils": "0.1.2",
+    "@irysius/utils": "0.1.x",
     "connect-redis": "3.0.2",
     "express-session": "1.13.0",
     "lodash": "4.12.0"

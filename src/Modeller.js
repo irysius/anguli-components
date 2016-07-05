@@ -47,14 +47,18 @@ function Modeller({ Waterline, logger = null }) {
 		}).then(function (models) {
 			logger.info('Waterline models initialized.');
 			_models = models;
+			return models;
 		});
 	}
 	
 	function setup(modelFolder) {
 		// Walk through models
-		var files = fs.readdirSync(modelFolder)
-			.filter(x => x.endsWith('.js'))
-			.map(x => x.replace(/\.js$/, ''));
+		var files = [];
+		try {
+			files = fs.readdirSync(modelFolder)
+				.filter(x => x.endsWith('.js'))
+				.map(x => x.replace(/\.js$/, ''));
+		} catch (e) { /* Empty Catch */ }
 
 		files.forEach(file => {
 			let modelPath = PATH.resolve(PATH.join(modelFolder, file));
