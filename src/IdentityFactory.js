@@ -23,7 +23,7 @@ function createIdentityMiddleware({ userLocator } = {}) {
 			}
 		};
 		
-		userLocator(req.session.userid).then(user => {
+		userLocator(req.session.userid || -1).then(user => {
 			if (user) { req.user = user; }
 		}).then(() => {
 			next();
