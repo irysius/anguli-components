@@ -39,7 +39,7 @@ function HubRouter({ io, logger = null }) {
 				}
 				if (path[0] !== '/') { path = '/' + path; }
 				var socketNamespace = io.of(path);
-				socketNamespace.on('connection', hub.onconnect);
+				socketNamespace.on('connection', hub.connect);
 			}
 		});
 		logger.info('HubRouter initialized.');
