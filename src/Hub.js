@@ -1,36 +1,43 @@
-function Hub(hub, name, options = {}) {
-	var socket;
-	Object.defineProperty(hub, 'socket', {
-		get: () => {
-			if (!socket) { throw new Error(`${name}'s socket not initialized`); }
-			return socket;
-		}
-	});
-	hub.connect = (_socket) => {
-		return Promise.resolve().then(() => {
-			return hub.connect(_socket);
-		}).then(() => {
-			socket = _socket;
-			return initialize(socket);
-		});
+function Hub(_hub, name, io, options = {}) {
+	let path = name.toLowerCase().replace(/hub$/, '');
+	if (_hub.options && _hub.options.name) {
+		path = _hub.options.name.toLowerCase();
+	}
+	if (path[0] !== '/') { path = '/' + path; }
+
+	var _namespace = io.of(path);
+	var hub = {
+		io: _namespace,
+		options: _hub.options,
+		connect: (_socket) => {
+			_hub.connect(_socket);		
+			initialize(_socket);
+		},
+		send: {}
 	};
- 
+
+	Object.keys(_hub.send).forEach(k => {
+		hub.send[k] = _hub.send[k].bind(hub);
+	});
+	
 	function initialize(socket) {
-		Object.keys(hub.receive).forEach(k => {
-			hub.receive[k] = hub.receive[k].bind(hub);
-			socket.on(k, hub.receive[k]);
+		var instance = { 
+			io: _namespace,
+			socket: socket,
+			options: _hub.options,
+			send: {},
+			receive: {} 
+		};
+		Object.keys(_hub.send).forEach(k => {
+			instance.send[k] = _hub.send[k].bind(instance);
 		});
-		Object.keys(hub.send).forEach(k => {
-			hub.send[k] = hub.send[k].bind(hub);
+		Object.keys(_hub.receive).forEach(k => {
+			instance.receive[k] = _hub.receive[k].bind(instance);
+			socket.on(k, instance.receive[k]);
 		});
+		
 		socket.on('disconnect', () => {
-			Promise.resolve(() => {
-				return hub.disconnect(socket);
-			}).catch(() => {
-				/* Empty catch */
-			}).then(() => {
-				socket = null;
-			});
+			_hub.disconnect(socket);
 		});
 	}
 

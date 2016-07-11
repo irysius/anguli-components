@@ -1,6 +1,6 @@
 {
   "name": "@irysius/anguli-components",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Web server components for the anguli framework",
   "main": "build/main.js",
   "scripts": {

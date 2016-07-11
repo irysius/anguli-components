@@ -2,6 +2,7 @@ var _ = require('lodash');
 var fs = require('fs');
 var PATH = require('path');
 var Logger = require('@irysius/utils').Logger;
+var Hub = require('./Hub');
 
 function HubRouter({ io, logger = null }) {
 	logger = logger || Logger.silent();
@@ -11,7 +12,7 @@ function HubRouter({ io, logger = null }) {
 	
 	function setupHubs(rootFolder) {
 		logger.info('HubRouter initializing.');
-		var path = PATH.resolve(rootFolder, '/hubs');
+		var path = PATH.resolve(rootFolder, 'hubs');
 
 		// Walk through hubs
 		var hubs = [];
@@ -25,7 +26,7 @@ function HubRouter({ io, logger = null }) {
 			var hub;
 			let path = PATH.resolve(rootFolder, 'hubs', name);
 			try {
-				hub = require(path);
+				hub = Hub(require(path), name, io);
 			} catch (error) {
 				logger.error(`Error loading hub by name: ${name}`); 
 				logger.error(error);
