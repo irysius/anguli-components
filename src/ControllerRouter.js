@@ -50,28 +50,36 @@ function ControllerRouter({ express, logger = null }) {
 				.map(x => x.replace(/\.js$/, ''))
 		} catch (e) { /* Empty Catch */ }
 
-		controllers.forEach(name => {
-			var controller;
+		var result = {};
+		controllers.map(name => {
+			var controller, router, _name;
 			let path = PATH.resolve(rootFolder, 'controllers', name);
+			// Try to load module.
 			try {
 				controller = require(path);
 			} catch (error) { 
 				logger.error(`Error loading controller by name: ${name}`);
 				logger.error(error);
-				return; 
+				return null; 
 			}
 			if (typeof controller === 'object') {
-				let path = name.toLowerCase().replace(/controller$/, '');
+				_name = name.toLowerCase().replace(/controller$/, '');
 				if (controller.options && controller.options.name) {
-					path = controller.options.name.toLowerCase();
+					_name = controller.options.name.toLowerCase();
 				}
+				let path = _name;
 				if (path[0] !== '/') { path = '/' + path; }
-				
-				var router = createRouter(controller);
+				// Create router and make express use it as middleware.
+				router = createRouter(controller);
 				app.use(path, router);
 			}
+			return { key: _name, value: router };
+		}).filter(x => x).forEach(x => {
+			// return processed hash of routers.
+			result[x.key] = x.value;
 		});
 		logger.info('ControllerRouter initialized.');
+		return result;
 	}
 	
 	return {

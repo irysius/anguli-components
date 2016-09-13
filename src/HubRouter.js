@@ -22,28 +22,37 @@ function HubRouter({ io, logger = null }) {
 				.map(x => x.replace(/\.js$/, ''));
 		} catch (e) { /* Empty Catch */ }
 
-		hubs.forEach(name => {
-			var hub;
+		var result = {};
+		hubs.map(name => {
+			var hub, _name;
 			let path = PATH.resolve(rootFolder, 'hubs', name);
+			// Try to load module, and cast into Hub object.
 			try {
 				hub = Hub(require(path), name, io);
 			} catch (error) {
 				logger.error(`Error loading hub by name: ${name}`); 
 				logger.error(error);
-				return;
+				return null;
 			}
 			
 			if (typeof hub === 'object') {
-				let path = name.toLowerCase().replace(/hub$/, '');
+				_name = name.toLowerCase().replace(/hub$/, '');
 				if (hub.options && hub.options.name) {
-					path = hub.options.name.toLowerCase();
+					_name = hub.options.name.toLowerCase();
 				}
+				let path = _name;
 				if (path[0] !== '/') { path = '/' + path; }
+				// Establish namespace and attach to connection event.
 				var socketNamespace = io.of(path);
 				socketNamespace.on('connection', hub.connect);
 			}
+			return { key: _name, value: hub };
+		}).filter(x => x).forEach(x => {
+			// return processed hash of hubs.
+			result[x.key] = x.value;
 		});
 		logger.info('HubRouter initialized.');
+		return result;
 	}
 	
 	return {

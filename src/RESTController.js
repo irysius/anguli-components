@@ -17,8 +17,21 @@ class RESTController {
 	constructor(model, modelName, options) {
 		modelName = modelName.toLowerCase();
 		this.Model = model;
-		// options: { softDeleteField: String }
+		// options: { softDeleteField: String, context: { Hub: Hub }, notifyHub: boolean }
 		this.options = options || {};
+		var hubSend;
+		function notifyHub(action, value) {
+			// Only notify hub if context exists and notifyHub is set to true.
+			if (!options.notifyHub || !options.context) { return; }
+			if (hubSend) {
+				hubSend[action](value);
+			} else if (options.context && options.context.Hubs &&
+				options.context.Hubs[modelName] && options.context.Hubs[modelName].send) 
+			{
+				hubSend = options.context.Hubs[modelName].send;
+				hubSend[action](value);
+			}
+		}
 		this.get = (req, res) => {
 			var fields = req.query.populate;
 			delete req.query.populate;
@@ -40,6 +53,7 @@ class RESTController {
 			delete req.body.id;
 			this.Model.create(req.body).then(item => {
 				res.json(item);
+				notifyHub('created', item);
 			}).catch(errorHandler(req, res));
 		};
 		this['put /:id(\\d+)'] = (req, res) => {
@@ -51,6 +65,7 @@ class RESTController {
 					res.status(404).json({ error: 'Not found.' });
 				} else {
 					res.json(items[0]);
+					notifyHub('updated', items[0]);
 				}
 			}).catch(errorHandler(req, res));
 		};
@@ -60,10 +75,12 @@ class RESTController {
 				update[this.options.softDeleteField] = true;
 				this.Model.update(req.params.id, update).then(items => {
 					res.json({ message: 'OK' });
+					notifyHub('removed', req.params.id);
 				}).catch(errorHandler(req, res));	
 			} else {
 				this.Model.destroy(req.params.id).then(() => {
 					res.json({ message: 'OK' });
+					notifyHub('removed', req.params.id);
 				}).catch(errorHandler(req, res));	
 			}
 		};
