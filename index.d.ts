@@ -1,5 +1,5 @@
 declare module "@irysius/anguli-components/ControllerRouter" {
-    import { ILogger } from "@irysius/utils/Logger";
+    import { ILogger } from "@irysius/utils";
     import * as express from "express";
     export interface IControllerRouterOptions {
         express: typeof express;
@@ -54,8 +54,8 @@ declare module "@irysius/anguli-components/Hub" {
     };
 }
 declare module "@irysius/anguli-components/HubRouter" {
+    import { ILogger } from "@irysius/utils";
     import { IHub, IMap } from "@irysius/anguli-components/helpers";
-    import { ILogger } from "@irysius/utils/Logger";
     import * as io from "socket.io";
     export interface IHubRouterOptions {
         io: io.Server;

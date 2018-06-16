@@ -1,8 +1,7 @@
 import * as _ from 'lodash';
 import * as fs from 'fs';
 import * as PATH from 'path';
-import { Logger } from '@irysius/utils';
-import { ILogger } from '@irysius/utils/Logger';
+import { Logger, ILogger } from '@irysius/utils';
 import * as express from 'express';
 import { IController } from './helpers';
 

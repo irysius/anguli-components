@@ -1,9 +1,8 @@
 import * as fs from 'fs';
 import * as PATH from 'path';
-import { Logger } from '@irysius/utils';
+import { Logger, ILogger } from '@irysius/utils';
 import { Hub } from './Hub';
 import { IHub, IMap } from './helpers';
-import { ILogger } from '@irysius/utils/Logger';
 import * as io from 'socket.io';
 
 export interface IHubRouterOptions {
