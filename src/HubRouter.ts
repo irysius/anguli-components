@@ -15,7 +15,7 @@ export function HubRouter(options: IHubRouterOptions) {
         io, 
         logger = null
     } = options;
-	logger = logger || Logger.silentLogger();
+	logger = logger || Logger.silent();
 	if (!Logger.isLoggerValid(logger)) {
 		throw new Error('HubRouter is passed an invalid logger.');
 	}

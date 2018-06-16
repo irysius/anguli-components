@@ -13,7 +13,7 @@ export interface IControllerRouterOptions {
 export function ControllerRouter(options: IControllerRouterOptions) {
     let { 
         express, 
-        logger = Logger.silentLogger()
+        logger = Logger.silent()
     } = options;
 
     if (!Logger.isLoggerValid(logger)) {
