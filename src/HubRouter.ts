@@ -1,30 +1,40 @@
-var _ = require('lodash');
-var fs = require('fs');
-var PATH = require('path');
-var Logger = require('@irysius/utils').Logger;
-var Hub = require('./Hub');
+import * as fs from 'fs';
+import * as PATH from 'path';
+import { Logger } from '@irysius/utils';
+import { Hub } from './Hub';
+import { IHub, IMap } from './helpers';
+import { ILogger } from '@irysius/utils/Logger';
+import * as io from 'socket.io';
 
-function HubRouter({ io, logger = null }) {
-	logger = logger || Logger.silent();
+export interface IHubRouterOptions {
+    io: io.Server;
+    logger?: ILogger;
+}
+export function HubRouter(options: IHubRouterOptions) {
+    let { 
+        io, 
+        logger = null
+    } = options;
+	logger = logger || Logger.silentLogger();
 	if (!Logger.isLoggerValid(logger)) {
 		throw new Error('HubRouter is passed an invalid logger.');
 	}
 	
-	function setupHubs(rootFolder) {
+	function setupHubs(rootFolder: string) {
 		logger.info('HubRouter initializing.');
-		var path = PATH.resolve(rootFolder, 'hubs');
+		let path = PATH.resolve(rootFolder, 'hubs');
 
 		// Walk through hubs
-		var hubs = [];
+		let hubs: string[] = [];
 		try {
 			hubs = fs.readdirSync(path)
 				.filter(x => x.endsWith('Hub.js'))
 				.map(x => x.replace(/\.js$/, ''));
 		} catch (e) { /* Empty Catch */ }
 
-		var result = {};
+		let result: IMap<IHub> = {};
 		hubs.map(name => {
-			var hub, _name;
+			let hub, _name: string;
 			let path = PATH.resolve(rootFolder, 'hubs', name);
 			// Try to load module, and cast into Hub object.
 			try {
@@ -42,8 +52,9 @@ function HubRouter({ io, logger = null }) {
 				}
 				let path = _name;
 				if (path[0] !== '/') { path = '/' + path; }
-				// Establish namespace and attach to connection event.
-				var socketNamespace = io.of(path);
+                // Establish namespace and attach to connection event.
+                
+				let socketNamespace = io.of(path);
 				socketNamespace.on('connection', hub.connect);
 			}
 			return { key: _name, value: hub };
@@ -59,5 +70,3 @@ function HubRouter({ io, logger = null }) {
 		setup: setupHubs	
 	};
 }
-
-module.exports = HubRouter;
