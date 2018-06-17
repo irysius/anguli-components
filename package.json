@@ -1,6 +1,6 @@
 {
   "name": "@irysius/anguli-components",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Web server components for the anguli framework",
   "main": "build/index.js",
   "scripts": {
@@ -24,7 +24,7 @@
     "lodash": "^4.17.10"
   },
   "devDependencies": {
-    "@irysius/typings-util": "^0.1.4",
+    "@irysius/typings-util": "^0.1.5",
     "@types/chai": "^4.1.4",
     "@types/lodash": "^4.14.109",
     "@types/mocha": "^5.2.2",

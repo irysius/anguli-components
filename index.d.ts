@@ -8,6 +8,7 @@ declare module "@irysius/anguli-components/ControllerRouter" {
     export function ControllerRouter(options: IControllerRouterOptions): {
         setup: (app: express.Application, rootFolder: string) => {};
     };
+    export default ControllerRouter;
 }
 declare module "@irysius/anguli-components/ErrorHandler" {
     import * as express from "express";
@@ -64,13 +65,16 @@ declare module "@irysius/anguli-components/HubRouter" {
     export function HubRouter(options: IHubRouterOptions): {
         setup: (rootFolder: string) => IMap<IHub>;
     };
+    export default HubRouter;
 }
 declare module "@irysius/anguli-components" {
-    import * as _ControllerRouter from "@irysius/anguli-components/ControllerRouter";
+    import _ControllerRouter from "@irysius/anguli-components/ControllerRouter";
     import * as _ErrorHandler from "@irysius/anguli-components/ErrorHandler";
     import * as _helpers from "@irysius/anguli-components/helpers";
     import * as _Hub from "@irysius/anguli-components/Hub";
-    import * as _HubRouter from "@irysius/anguli-components/HubRouter";
+    import _HubRouter from "@irysius/anguli-components/HubRouter";
+    export { IControllerRouterOptions } from "@irysius/anguli-components/ControllerRouter";
+    export { IHubRouterOptions } from "@irysius/anguli-components/HubRouter";
     export let ControllerRouter: typeof _ControllerRouter;
     export let ErrorHandler: typeof _ErrorHandler;
     export let helpers: typeof _helpers;

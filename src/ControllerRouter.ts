@@ -67,6 +67,7 @@ export function ControllerRouter(options: IControllerRouterOptions) {
             // Try to load module
             try {
                 controller = require(path);
+                // TODO: Deal with the use of defaults
             } catch (error) {
                 logger.error(`Error loading controller by name: ${name}`);
 				logger.error(error);
@@ -96,3 +97,5 @@ export function ControllerRouter(options: IControllerRouterOptions) {
         setup: setupControllers
     };
 }
+
+export default ControllerRouter;

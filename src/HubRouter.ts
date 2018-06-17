@@ -37,6 +37,7 @@ export function HubRouter(options: IHubRouterOptions) {
 			let path = PATH.resolve(rootFolder, 'hubs', name);
 			// Try to load module, and cast into Hub object.
 			try {
+				// TODO: Deal with the use of defaults
 				hub = Hub(require(path), name, io);
 			} catch (error) {
 				logger.error(`Error loading hub by name: ${name}`); 
@@ -69,3 +70,5 @@ export function HubRouter(options: IHubRouterOptions) {
 		setup: setupHubs	
 	};
 }
+
+export default HubRouter;
