@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as PATH from 'path';
 import { Logger, ILogger } from '@irysius/utils';
 import * as express from 'express';
-import { IController } from './helpers';
+import { IController, flexibleRequire } from './helpers';
 
 export interface IControllerRouterOptions {
     express: typeof express;
@@ -66,8 +66,7 @@ export function ControllerRouter(options: IControllerRouterOptions) {
 
             // Try to load module
             try {
-                controller = require(path);
-                // TODO: Deal with the use of defaults
+                controller = flexibleRequire<IController>(path);
             } catch (error) {
                 logger.error(`Error loading controller by name: ${name}`);
 				logger.error(error);

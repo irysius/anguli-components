@@ -17,13 +17,11 @@ export interface IController {
     [route: string]: IRequestHandler|any;
 }
 
-// Review this interface carefully
-export interface IHub {
-    options: {
-        name: string
-    };
-    connect(socket): void;
-    send: IMap<Function>;
-    receive: IMap<Function>;
-    disconnect(socket): void;
+/**
+ * Given a CommonJS/Node path, and differences between ES6 module defaults and Node modules, attempt to return the intended module.
+ * @param path CommonJS/Node path used by require to fetch a module
+ */
+export function flexibleRequire<T>(path: string): T {
+    let raw = require(path);
+    return raw.default != null ? raw.default : raw;
 }
