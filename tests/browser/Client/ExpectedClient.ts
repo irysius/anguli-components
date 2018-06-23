@@ -7,11 +7,6 @@ export let TestClient: ClientTemplate<IReceive, ISend> = {
     reconnect: function (attemptNumber: number) {
 
     },
-    send: {
-        message: function (data: string) {
-            socket.emit('message', {});
-        }
-    },
     receive: {
         timestamp: function (payload: number) {
 

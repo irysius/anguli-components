@@ -5,7 +5,8 @@ In order for Client generation to work correctly, we expect the following condit
 - Hub files have a default export whose variable name is `${name}Hub`
 - This `${name}Hub` variable has a declared type of `HubTemplate<R, S>` where both `R` and `S` are explictly declared as well
   - `R` and `S` do not need to be exported interfaces
-  - `R` and `S` should be completely defined internally. (No bandwidth to do recursive type dependencies fetching).
+  - `R` and `S` should be completely defined internally.
+    - TODO: This should be augmented. Code generation is almost useless if it can't pull types.
 
 ## Output
 - We expect two files to be generated: `${name}Client.ts` and `${name}ClientTypes.ts`
