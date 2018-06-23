@@ -1,4 +1,4 @@
-import * as socketio from 'socket.io';
+import * as io from 'socket.io';
 
 type HubSendFilter = string; // room or id
 
@@ -7,13 +7,13 @@ type HubSendFilter = string; // room or id
  * Do not run the template through augmentHub more than once.
  */
 export interface HubTemplate<R = any, S = any> {
-    options: {
-        name: string
+    options?: {
+        name?: string
 	};
 	/**
 	 * On connect, the socket that connected will be passed, perform any initialization code here.
 	 */
-	connect(this: HubSend<S>, socket: socketio.Socket): void;
+	connect(this: HubSend<S>, socket: io.Socket): void;
 	/**
 	 * send should be a hash of types, keyed by the expected method name.
 	 */
@@ -25,7 +25,7 @@ export interface HubTemplate<R = any, S = any> {
 	/**
 	 * On disconnect, the socket that disconnected will be passed, perform any cleanup code here.
 	 */
-    disconnect(this: HubSend<S>, socket: socketio.Socket, reason: string): void;
+    disconnect(this: HubSend<S>, socket: io.Socket, reason: string): void;
 }
 export interface Hub<R = any, S = any> extends HubTemplate<R, S> {
 	send: HubSend<S>;
@@ -34,7 +34,7 @@ export type HubSend<S = any> = {
     [P in keyof S]: (payload: S[P], roomOrId?: HubSendFilter) => void;
 }
 export type HubReceive<R = any, S = any> = {
-    [P in keyof R]: (this: HubSend<S>, data: R[P], socket: socketio.Socket) => void;
+    [P in keyof R]: (this: HubSend<S>, data: R[P], socket: io.Socket) => void;
 }
 
 /**
@@ -43,9 +43,9 @@ export type HubReceive<R = any, S = any> = {
  * @param io A socket.io server that's used to create the hub.
  * @returns A HubSend object, tagged with the methods you can use to send data to the client.
  */
-export function augmentHub<R, S>(template: HubTemplate<R, S>, io: socketio.Server, name?: string): HubSend<S> {
+export function augmentHub<R, S>(template: HubTemplate<R, S>, io: io.Server, name?: string): HubSend<S> {
     let { options, connect, disconnect, sendTypes, receive } = template;
-	let { name: _name } = options;
+	let { name: _name } = options || { name: null };
 	name = _name != null ? _name : name;
     let path = (name[0] !== '/' ? `/${name}` : name).toLowerCase();
     let nsp = io.of(path);
@@ -68,7 +68,7 @@ export function augmentHub<R, S>(template: HubTemplate<R, S>, io: socketio.Serve
 	(template as Hub<R, S>).send = _send;
 
 	// Bind each connecting socket to events defined by receive
-    function listenToSocket(socket: socketio.Socket) {
+    function listenToSocket(socket: io.Socket) {
         Object.keys(receive).forEach(eventName => {
             socket.on(eventName, data => {
                 receive[eventName].bind(_send)(data, socket);
