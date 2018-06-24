@@ -22,6 +22,7 @@ export interface IClientFileResults {
 
 export function generateFiles(statements: IStatements): IClientFileResults {
     let hubName = assertDefaultExport(statements);
+    let path = createPath(hubName);
     let { receiveType, sendType } = assertHubDeclaration(statements, hubName);
 
     let receiveInterface = assertInterface(statements, receiveType);
@@ -31,6 +32,7 @@ export function generateFiles(statements: IStatements): IClientFileResults {
     let _clientName = createClientName(hubName);
 
     let params = {
+        path,
         clientName: _clientName,
         receiveType, sendType,
         sendInterface: temp.sendInterface,
@@ -152,4 +154,7 @@ function swapInterfaceNames(receiveInterface: string[], sendInterface: string[])
 }
 function createClientName(hubName: string) {
     return hubName.replace('Hub', 'Client');
+}
+function createPath(hubName: string) {
+    return `/${hubName.replace('Hub', '').toLowerCase()}`;
 }

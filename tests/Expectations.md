@@ -7,6 +7,7 @@ In order for Client generation to work correctly, we expect the following condit
   - `R` and `S` do not need to be exported interfaces
   - `R` and `S` should be completely defined internally.
     - TODO: This should be augmented. Code generation is almost useless if it can't pull types.
+- The path is hardcoded to be a lower cased `name` of `${name}Hub`;
 
 ## Output
 - We expect two files to be generated: `${name}Client.ts` and `${name}ClientTypes.ts`

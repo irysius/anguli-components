@@ -39,12 +39,12 @@ export type HubReceive<R = any, S = any> = {
 
 /**
  * Method used to activate a Hub template and make the template "live".
- * @param template The base Hub template to turn "active". Expect the `connect`, `disconnect`, and `receive` functions to be "live" after augment.
+ * @param hub The base Hub template to turn "active". Expect the `connect`, `disconnect`, and `receive` functions to be "live" after augment.
  * @param io A socket.io server that's used to create the hub.
  * @returns A HubSend object, tagged with the methods you can use to send data to the client.
  */
-export function augmentHub<R, S>(template: HubTemplate<R, S>, io: io.Server, name?: string): HubSend<S> {
-    let { options, connect, disconnect, sendTypes, receive } = template;
+export function augmentHub<R, S>(hub: HubTemplate<R, S>, io: io.Server, name?: string): HubSend<S> {
+    let { options, connect, disconnect, sendTypes, receive } = hub;
 	let { name: _name } = options || { name: null };
 	name = _name != null ? _name : name;
     let path = (name[0] !== '/' ? `/${name}` : name).toLowerCase();
@@ -65,7 +65,7 @@ export function augmentHub<R, S>(template: HubTemplate<R, S>, io: io.Server, nam
     }
 	createSends();
 	// Augment the original template with HubSend
-	(template as Hub<R, S>).send = _send;
+	(hub as Hub<R, S>).send = _send;
 
 	// Bind each connecting socket to events defined by receive
     function listenToSocket(socket: io.Socket) {
