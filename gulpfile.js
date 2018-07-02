@@ -2,68 +2,70 @@ var gulp = require('gulp');
 var exec = require('child_process').exec;
 var clean = require('gulp-clean');
 var sequence = require('run-sequence');
-var generateDeclaration = require('@irysius/typings-util');
+var typingsUtil = require('@irysius/typings-util');
 
-// compile - compiles typescript into javascript
+// build: compiles the TypeScript in src/ and dumps the output in build/
+gulp.task('build', (done) => {
+    sequence('clean-build', 'compile', 'copy', 'clean-src', done);
+});
 gulp.task('compile', (done) => {
-    exec('node-tsc', (err, stdout, stderr) => {
+    exec('node-tsc -p ./src', (err, stdout, stderr) => {
         console.log(stdout);
         console.log(stderr);
         done(); // continue even if there's errors.
     });
 });
-
-// copy - copies compiled javascript to the build folder
 gulp.task('copy', () => {
-    return gulp.src([
-        'src/**/*.js'
-    ]).pipe(gulp.dest('build'));
+    return gulp.src(['src/**/*.js']).pipe(gulp.dest('build'));
+});
+gulp.task('clean-build', () => {
+    return gulp.src(['build/**/*.*']).pipe(clean());
+});
+gulp.task('clean-src', () => {
+    return gulp.src(['src/**/*.js']).pipe(clean());
 });
 
-// clean - removes compiled javascript in the src folder
-gulp.task('clean', () => {
-    return gulp.src([
-        'src/**/*.js'
-    ]).pipe(clean());
-});
-
-// declaration-compile - generates .d.ts from the TypeScript files
-gulp.task('declaration-compile', (done) => {
-    exec('node-tsc -d', (err, stdout, stderr) => {
+// declaration-build: compiles the TypeScript in src/, and generates typings appropriate for publishing.
+gulp.task('declaration', (done) => {
+    exec('node-tsc -p ./src -d', (err, stdout, stderr) => {
         done(); // continue even if there's errors.
     });
 });
-
-// declaration-copy - copies .d.ts to the types folder
 gulp.task('declaration-copy', () => {
     return gulp.src([
         'src/**/*.d.ts'
     ]).pipe(gulp.dest('types'));
 });
-
-// declaration-clean - removes unwanted .d.ts, and removes .d.ts from the src folder
+gulp.task('declaration-commonjs', () => {
+    return typingsUtil.commonjs('./types', '@irysius/anguli-components', './commonjs');
+});
+gulp.task('declaration-amd', () => {
+    return typingsUtil.amd('./types', '@irysius/anguli-components', './common.d.ts');
+});
 gulp.task('declaration-clean', () => {
     return gulp.src([
-        'main.d.ts',
-        'check.d.ts',
-        'src/**/*.d.ts',
-        'tests/**/*.d.ts',
-        'types/**/*.d.ts'
+        '**/*.d.ts',
+        '!node_modules/**/*.d.ts', // do not clean declarations in node_modules
+        '!commonjs/**/*.d.ts', // do not clean commonjs declaration outputs
+        '!common.d.ts', // do not clean merged project declaration
     ]).pipe(clean());
 });
-
-// declaration-generate - generates a unified declaration
-gulp.task('declaration-generate', () => {
-    return generateDeclaration('./types', '@irysius/anguli-components', './index.d.ts');
+gulp.task('declaration-clean-amd', () => {
+    return gulp.src(['common.d.ts']).pipe(clean());
+});
+gulp.task('declaration-clean-commonjs', () => {
+    return gulp.src(['commonjs/**/*.d.ts']).pipe(clean());
+});
+gulp.task('declaration-move', () => {
+    return gulp.src(['commonjs/**/*.*']).pipe(gulp.dest('./'));
+});
+gulp.task('declaration-local', (done) => {
+    sequence('declaration', 'declaration-copy', 'declaration-amd', 'declaration-clean', 'declaration-clean-commonjs', done);
+});
+gulp.task('declaration-publish', (done) => {
+    sequence('declaration', 'declaration-copy', 'declaration-commonjs', 'declaration-clean', 'declaration-move', 'declaration-clean-commonjs', done);
 });
 
-gulp.task('build', (done) => {
-    sequence('compile', 'copy', 'clean', done);
-});
-
-gulp.task('build-declaration', (done) => {
-    sequence('declaration-compile', 'declaration-copy', 'declaration-generate', 'declaration-clean', done);
-});
-
-gulp.task('default', ['build', 'build-declaration']);
-gulp.task('prepare', ['build']);
+gulp.task('default', ['build', 'declaration-local']);
+gulp.task('prepare', ['build', 'declaration-publish']);
+gulp.task('postpublish', ['declaration-clean']);

@@ -2,9 +2,10 @@ import { fs } from '@irysius/utils';
 import * as PATH from 'path';
 import {
     parseModuleName,
-    parseFileContent
+    parseFileContent,
+    IStatements
 } from '@irysius/typings-util/helpers';
-import { IStatements, IClientFileResults, generateFiles } from './helpers';
+import { IClientFileResults, generateFiles } from './helpers';
 import { IMap } from '../helpers';
 
 interface Result {

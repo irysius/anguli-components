@@ -24,10 +24,10 @@
     "lodash": "^4.17.10"
   },
   "devDependencies": {
-    "@irysius/typings-util": "^0.1.6",
+    "@irysius/typings-util": "^0.2.0",
     "@types/chai": "^4.1.4",
     "@types/lodash": "^4.14.110",
-    "@types/mocha": "^5.2.3",
+    "@types/mocha": "^5.2.4",
     "@types/socket.io-client": "^1.4.32",
     "chai": "^3.5.0",
     "gulp": "^3.9.1",
@@ -38,7 +38,7 @@
   },
   "files": [
     "README.md",
-    "index.d.ts",
-    "build/**/*.js"
+    "build/**/*.js",
+    "**/*.d.ts"
   ]
 }

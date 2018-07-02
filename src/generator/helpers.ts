@@ -1,13 +1,5 @@
 import { constructPrimaryFile, constructTypesFile } from "./template";
-
-export interface IStatements {
-    imports: string[];
-    exports: string[][];
-    internal: {
-        interfaces: string[][];
-        types: string[];
-    };
-}
+import { IStatements } from "@irysius/typings-util/helpers";
 
 export interface IClientFileResults {
     primaryFile: {

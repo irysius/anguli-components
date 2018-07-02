@@ -20,8 +20,8 @@ export function HubRouter(options: IHubRouterOptions) {
 	}
 	
 	function setupHubs(rootFolder: string) {
-		logger.info('HubRouter initializing.');
 		let path = PATH.resolve(rootFolder, 'hubs');
+		logger.info(`HubRouter initializing at: ${path}`);
 
 		// Walk through hubs
 		let hubs: string[] = [];
@@ -33,7 +33,7 @@ export function HubRouter(options: IHubRouterOptions) {
 
 		let result: IMap<Hub> = {};
 		hubs.map(name => {
-			let rawHub: HubTemplate, _name: string;
+			let rawHub: HubTemplate;
 			let path = PATH.resolve(rootFolder, 'hubs', name);
 			// Try to load module, and cast into Hub object.
 			try {
@@ -45,7 +45,7 @@ export function HubRouter(options: IHubRouterOptions) {
 				return null;
 			}
 			
-			return { key: _name, value: rawHub as Hub };
+			return { key: name, value: rawHub as Hub };
 		}).filter(x => x).forEach(x => {
 			// return processed hash of hubs.
 			result[x.key] = x.value;

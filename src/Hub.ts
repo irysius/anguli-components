@@ -7,9 +7,7 @@ type HubSendFilter = string; // room or id
  * Do not run the template through augmentHub more than once.
  */
 export interface HubTemplate<R = any, S = any> {
-    options?: {
-        name?: string
-	};
+    path: string;
 	/**
 	 * On connect, the socket that connected will be passed, perform any initialization code here.
 	 */
@@ -44,10 +42,7 @@ export type HubReceive<R = any, S = any> = {
  * @returns A HubSend object, tagged with the methods you can use to send data to the client.
  */
 export function augmentHub<R, S>(hub: HubTemplate<R, S>, io: io.Server, name?: string): HubSend<S> {
-    let { options, connect, disconnect, sendTypes, receive } = hub;
-	let { name: _name } = options || { name: null };
-	name = _name != null ? _name : name;
-    let path = (name[0] !== '/' ? `/${name}` : name).toLowerCase();
+    let { path, connect, disconnect, sendTypes, receive } = hub;
     let nsp = io.of(path);
 
 	// Create the HubSend based on sendTypes
