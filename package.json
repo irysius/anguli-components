@@ -4,8 +4,7 @@
   "description": "Web server components for the anguli framework",
   "main": "build/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "gulp prepare"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -38,7 +37,8 @@
   },
   "files": [
     "README.md",
-    "build/**/*.js",
+    "LICENSE.md",
+    "**/*.js",
     "**/*.d.ts"
   ]
 }

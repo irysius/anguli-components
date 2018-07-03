@@ -26,7 +26,8 @@ export interface HubTemplate<R = any, S = any> {
     disconnect(this: HubSend<S>, socket: io.Socket, reason: string): void;
 }
 export interface Hub<R = any, S = any> extends HubTemplate<R, S> {
-	send: HubSend<S>;
+    send: HubSend<S>;
+    room: io.Namespace;
 }
 export type HubSend<S = any> = {
     [P in keyof S]: (payload: S[P], roomOrId?: HubSendFilter) => void;
@@ -60,7 +61,8 @@ export function augmentHub<R, S>(hub: HubTemplate<R, S>, io: io.Server, name?: s
     }
 	createSends();
 	// Augment the original template with HubSend
-	(hub as Hub<R, S>).send = _send;
+    (hub as Hub<R, S>).send = _send;
+    (hub as Hub<R, S>).room = nsp;
 
 	// Bind each connecting socket to events defined by receive
     function listenToSocket(socket: io.Socket) {
