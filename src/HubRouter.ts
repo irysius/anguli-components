@@ -38,7 +38,7 @@ export function HubRouter(options: IHubRouterOptions) {
 			// Try to load module, and cast into Hub object.
 			try {
 				rawHub = flexibleRequire<HubTemplate>(path);
-				augmentHub(rawHub, io, name); // do not need the return value
+				augmentHub(rawHub, io); // do not need the return value
 			} catch (error) {
 				logger.error(`Error loading hub by name: ${name}`); 
 				logger.error(error);

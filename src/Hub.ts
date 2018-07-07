@@ -11,7 +11,7 @@ export interface HubTemplate<R = any, S = any> {
 	/**
 	 * On connect, the socket that connected will be passed, perform any initialization code here.
 	 */
-	connect(this: HubSend<S>, socket: io.Socket): void;
+	connect?(this: HubSend<S>, socket: io.Socket): void;
 	/**
 	 * send should be a hash of types, keyed by the expected method name.
 	 */
@@ -23,7 +23,7 @@ export interface HubTemplate<R = any, S = any> {
 	/**
 	 * On disconnect, the socket that disconnected will be passed, perform any cleanup code here.
 	 */
-    disconnect(this: HubSend<S>, socket: io.Socket, reason: string): void;
+    disconnect?(this: HubSend<S>, socket: io.Socket, reason: string): void;
 }
 export interface Hub<R = any, S = any> extends HubTemplate<R, S> {
     send: HubSend<S>;
@@ -36,15 +36,19 @@ export type HubReceive<R = any, S = any> = {
     [P in keyof R]: (this: HubSend<S>, data: R[P], socket: io.Socket) => void;
 }
 
+export type Middleware = (socket: io.Socket, next: (err?: any) => void) => void;
 /**
  * Method used to activate a Hub template and make the template "live".
  * @param hub The base Hub template to turn "active". Expect the `connect`, `disconnect`, and `receive` functions to be "live" after augment.
  * @param io A socket.io server that's used to create the hub.
  * @returns A HubSend object, tagged with the methods you can use to send data to the client.
  */
-export function augmentHub<R, S>(hub: HubTemplate<R, S>, io: io.Server, name?: string): HubSend<S> {
+export function augmentHub<R, S>(hub: HubTemplate<R, S>, io: io.Server, middlewares?: Middleware[]): HubSend<S> {
     let { path, connect, disconnect, sendTypes, receive } = hub;
     let nsp = io.of(path);
+    (middlewares || []).forEach(middleware => {
+        nsp.use(middleware);
+    });
 
 	// Create the HubSend based on sendTypes
     let _send: HubSend<S> = {} as any;
@@ -74,10 +78,10 @@ export function augmentHub<R, S>(hub: HubTemplate<R, S>, io: io.Server, name?: s
     }
 
     nsp.on('connect', socket => {
-        connect.bind(_send)(socket);
+        connect && connect.bind(_send)(socket);
         listenToSocket(socket);
         socket.on('disconnect', (reason: string) => {
-            disconnect.bind(_send)(socket, reason);
+            disconnect && disconnect.bind(_send)(socket, reason);
         });
     });
 

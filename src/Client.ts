@@ -1,10 +1,14 @@
+import { IMap } from "./helpers";
+
 export interface ClientTemplate<R = any, S = any> {
     path: string;
-    connect(this: ClientSend<S>): void;
-    reconnect(this: ClientSend<S>, attemptNumber: number): void;
+    query?: IMap<any>;
+    connect?(this: ClientSend<S>): void;
+    reconnect?(this: ClientSend<S>, attemptNumber: number): void;
     sendTypes: S;
     receive: ClientReceive<R, S>;
-    disconnect(reason: string): void;
+    disconnect?(reason: string): void;
+    error(err: any): void;
 }
 export interface Client<R = any, S = any> extends ClientTemplate<R, S> {
     send: ClientSend<S>;
@@ -19,8 +23,14 @@ export type ClientReceive<R = any, S = any> = {
 }
 
 export function augmentClient<R, S>(client: ClientTemplate<R, S>, io: SocketIOClientStatic): Client<R, S> {
-    let { path, connect, reconnect, disconnect, sendTypes, receive } = client;
-    let socket = io(path, { autoConnect: false });
+    let { 
+        path, query, 
+        connect, reconnect, disconnect, 
+        sendTypes, receive, 
+        error 
+    } = client;
+    
+    let socket = io(path, { autoConnect: false, query });
 
     // Create the ClientSend based on sendTypes
     let _send: ClientSend<S> = {} as any;
@@ -34,17 +44,24 @@ export function augmentClient<R, S>(client: ClientTemplate<R, S>, io: SocketIOCl
     createSends();
     // Augment the original template with ClientSend and socket
     (client as Client<R, S>).send = _send;
-    (client as Client<R, S>).open = socket.open;
-    (client as Client<R, S>).close = socket.close;
+    (client as Client<R, S>).open = () => {
+        socket.open();
+    };
+    (client as Client<R, S>).close = () => {
+        socket.close();
+    };
 
     socket.on('connect', () => {
-        connect.bind(_send)();
+        connect && connect.bind(_send)();
     });
     socket.on('reconnect', (attemptNumber) => {
-        reconnect.bind(_send)(attemptNumber);
+        reconnect && reconnect.bind(_send)(attemptNumber);
     });
     socket.on('disconnect', (reason) => {
-        disconnect.bind(_send)(reason);
+        disconnect && disconnect.bind(_send)(reason);
+    });
+    socket.on('error', (err) => {
+        error(err);
     });
 
     function listenToSocket(socket: SocketIOClient.Socket) {
@@ -55,8 +72,6 @@ export function augmentClient<R, S>(client: ClientTemplate<R, S>, io: SocketIOCl
         });
     }
     listenToSocket(socket);
-
-    socket.open();
 
     return client as any;
 }
